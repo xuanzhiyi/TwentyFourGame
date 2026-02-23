@@ -1,0 +1,10 @@
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\bin\Debug\TwentyFourGame.exe.config
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\bin\Debug\TwentyFourGame.exe
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\bin\Debug\TwentyFourGame.pdb
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\obj\Debug\TwentyFourGame.Form1.resources
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\obj\Debug\TwentyFourGame.Properties.Resources.resources
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\obj\Debug\TwentyFourGame.csproj.GenerateResource.cache
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\obj\Debug\TwentyFourGame.csproj.CoreCompileInputs.cache
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\obj\Debug\TwentyFourGame.exe
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\obj\Debug\TwentyFourGame.pdb
+C:\Users\xuanz\source\repos\TwentyFourGame\TwentyFourGame\obj\Debug\TwentyFourGame.csproj.AssemblyReference.cache
