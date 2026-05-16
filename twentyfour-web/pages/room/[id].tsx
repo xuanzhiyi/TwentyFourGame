@@ -27,6 +27,8 @@ export default function RoomPage() {
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [connected, setConnected] = useState(false);
   const [showSolutions, setShowSolutions] = useState(false);
+  const [countdown, setCountdown] = useState<2 | 1 | null>(null);
+  const prevNumbersRef = useRef<number[] | null>(null);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -51,8 +53,19 @@ export default function RoomPage() {
       if (msg.type === 'YOUR_ID') {
         setMyId(msg.id);
       } else if (msg.type === 'ROOM_STATE') {
-        setRoomState(msg as RoomState);
+        const newState = msg as RoomState;
+        const prev = prevNumbersRef.current;
+        const isNewNumbers =
+          newState.numbers !== null &&
+          JSON.stringify(newState.numbers) !== JSON.stringify(prev);
+        prevNumbersRef.current = newState.numbers;
+        setRoomState(newState);
         if (!msg.buzzedById) setShowSolutions(false);
+        if (isNewNumbers) {
+          setCountdown(2);
+          setTimeout(() => setCountdown(1), 1000);
+          setTimeout(() => setCountdown(null), 2000);
+        }
       }
     };
 
@@ -105,8 +118,8 @@ export default function RoomPage() {
   const roomId = router.query.id as string;
   const hasBuzzed = roomState.buzzedById !== null;
   const iAmBuzzer = roomState.buzzedById === myId;
-  const canBuzz = roomState.numbers !== null && !hasBuzzed;
-  const canShowSolutions = roomState.numbers !== null && !showSolutions;
+  const canBuzz = roomState.numbers !== null && !hasBuzzed && countdown === null;
+  const canShowSolutions = roomState.numbers !== null && !showSolutions && countdown === null;
 
   return (
     <>
@@ -153,7 +166,7 @@ export default function RoomPage() {
         {/* Number cards — 2×2 poker-card grid */}
         <div className="grid grid-cols-2 gap-3">
           {(roomState.numbers ?? [null, null, null, null]).map((n, i) => (
-            <NumberCard key={i} value={n} index={i} />
+            <NumberCard key={i} value={n} index={i} countdown={countdown} />
           ))}
         </div>
 
