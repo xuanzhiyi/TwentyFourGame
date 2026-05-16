@@ -7,9 +7,11 @@ interface Props {
   players: Player[];
   buzzedById: string | null;
   myId: string | null;
+  meLabel: string;
+  buzzedTag: string;
 }
 
-export default function PlayerList({ players, buzzedById, myId }: Props) {
+export default function PlayerList({ players, buzzedById, myId, meLabel, buzzedTag }: Props) {
   return (
     <div className="flex flex-wrap gap-2 justify-center">
       {players.map(p => {
@@ -28,8 +30,8 @@ export default function PlayerList({ players, buzzedById, myId }: Props) {
             `}
           >
             {p.name}
-            {isMe && !isBuzzer && ' (you)'}
-            {isBuzzer && ' 🔔 BUZZED!'}
+            {isMe && !isBuzzer && meLabel}
+            {isBuzzer && ` ${buzzedTag}`}
           </div>
         );
       })}

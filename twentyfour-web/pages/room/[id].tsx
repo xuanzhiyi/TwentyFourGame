@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import NumberCard from '../../components/NumberCard';
 import PlayerList from '../../components/PlayerList';
+import { useLang } from '../../lib/useLang';
 
 interface Player {
   id: string;
@@ -19,6 +20,7 @@ interface RoomState {
 
 export default function RoomPage() {
   const router = useRouter();
+  const [t, toggleLang] = useLang();
   const wsRef = useRef<WebSocket | null>(null);
 
   const [myId, setMyId] = useState<string | null>(null);
@@ -30,7 +32,10 @@ export default function RoomPage() {
     if (!router.isReady) return;
 
     const roomId = router.query.id as string;
-    const playerName = (router.query.name as string) || 'Anonymous';
+    const playerName =
+      (router.query.name as string) ||
+      (typeof window !== 'undefined' ? localStorage.getItem('playerName') : null) ||
+      'Anonymous';
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
@@ -47,7 +52,6 @@ export default function RoomPage() {
         setMyId(msg.id);
       } else if (msg.type === 'ROOM_STATE') {
         setRoomState(msg as RoomState);
-        // Hide solutions panel when state resets (new round / generate)
         if (!msg.buzzedById) setShowSolutions(false);
       }
     };
@@ -77,13 +81,13 @@ export default function RoomPage() {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center text-gray-400">
-          <p className="text-2xl font-semibold mb-2">Disconnected</p>
-          <p className="text-sm mb-6">Lost connection to the server.</p>
+          <p className="text-2xl font-semibold mb-2">{t.disconnected}</p>
+          <p className="text-sm mb-6">{t.lostConnection}</p>
           <button
             onClick={() => router.reload()}
             className="bg-brand-blue text-white px-6 py-2 rounded-xl font-semibold hover:bg-blue-900 transition-colors"
           >
-            Reconnect
+            {t.reconnect}
           </button>
         </div>
       </main>
@@ -93,7 +97,7 @@ export default function RoomPage() {
   if (!roomState) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-400 text-lg">Connecting…</p>
+        <p className="text-gray-400 text-lg">{t.connecting}</p>
       </main>
     );
   }
@@ -107,7 +111,7 @@ export default function RoomPage() {
   return (
     <>
       <Head>
-        <title>24 Game — {roomId}</title>
+        <title>{t.appTitle} — {roomId}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
@@ -118,14 +122,22 @@ export default function RoomPage() {
             onClick={() => router.push('/')}
             className="text-gray-400 hover:text-gray-600 text-sm transition-colors"
           >
-            ← Home
+            {t.home}
           </button>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-brand-blue leading-none">24 Game</h1>
+            <h1 className="text-3xl font-bold text-brand-blue leading-none">{t.appTitle}</h1>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-400 uppercase tracking-widest">Room</p>
-            <p className="font-mono font-bold text-brand-blue tracking-widest text-lg">{roomId}</p>
+          <div className="text-right flex flex-col items-end gap-1">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-widest">{t.roomLabel}</p>
+              <p className="font-mono font-bold text-brand-blue tracking-widest text-lg">{roomId}</p>
+            </div>
+            <button
+              onClick={toggleLang}
+              className="text-xs font-semibold text-gray-400 hover:text-brand-blue border border-gray-200 rounded-lg px-2 py-0.5 transition-colors"
+            >
+              {t.langToggle}
+            </button>
           </div>
         </div>
 
@@ -134,6 +146,8 @@ export default function RoomPage() {
           players={roomState.players}
           buzzedById={roomState.buzzedById}
           myId={myId}
+          meLabel={t.me}
+          buzzedTag={t.buzzedTag}
         />
 
         {/* Number cards — 2×2 poker-card grid */}
@@ -151,7 +165,7 @@ export default function RoomPage() {
               ? 'bg-yellow-400 text-yellow-900'
               : 'bg-yellow-100 text-yellow-800 border border-yellow-300'}
           `}>
-            {iAmBuzzer ? '🔔 You buzzed first!' : `🔔 ${roomState.buzzedByName} buzzed first!`}
+            {iAmBuzzer ? t.youBuzzed : t.buzzedFirst(roomState.buzzedByName ?? '')}
           </div>
         )}
 
@@ -161,10 +175,9 @@ export default function RoomPage() {
             onClick={() => send({ type: 'GENERATE' })}
             className="px-6 py-3 bg-brand-blue text-white rounded-xl font-semibold hover:bg-blue-900 active:scale-95 transition-all"
           >
-            Generate
+            {t.generate}
           </button>
 
-          {/* Big red Buzz button */}
           <button
             onClick={() => send({ type: 'BUZZ' })}
             disabled={!canBuzz}
@@ -177,7 +190,7 @@ export default function RoomPage() {
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-50'}
             `}
           >
-            {iAmBuzzer ? 'You Buzzed!' : hasBuzzed ? 'Buzzed' : 'Buzz! 🔔'}
+            {iAmBuzzer ? t.youBuzzedBtn : hasBuzzed ? t.buzzedBtn : t.buzzBtn}
           </button>
 
           {canShowSolutions && (
@@ -185,7 +198,7 @@ export default function RoomPage() {
               onClick={handleShowSolutions}
               className="px-6 py-3 border-2 border-brand-blue text-brand-blue rounded-xl font-semibold hover:bg-brand-light active:scale-95 transition-all"
             >
-              Show Solutions
+              {t.showSolutions}
             </button>
           )}
 
@@ -194,7 +207,7 @@ export default function RoomPage() {
               onClick={() => send({ type: 'NEXT_ROUND' })}
               className="px-6 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-gray-100 active:scale-95 transition-all"
             >
-              Next Round
+              {t.nextRound}
             </button>
           )}
         </div>
@@ -203,10 +216,10 @@ export default function RoomPage() {
         {showSolutions && (
           <div className="w-full max-w-lg">
             <h2 className="text-sm font-bold text-brand-blue uppercase tracking-widest mb-2">
-              Solutions
+              {t.solutionsTitle}
             </h2>
             {roomState.solutions.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No solution exists for these numbers.</p>
+              <p className="text-gray-500 text-center py-4">{t.noSolution}</p>
             ) : (
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm divide-y divide-gray-100 max-h-60 overflow-y-auto">
                 {roomState.solutions.map((s, i) => (
@@ -222,7 +235,7 @@ export default function RoomPage() {
         {/* Invite hint */}
         {roomState.players.length < 4 && (
           <p className="text-gray-400 text-xs text-center mt-auto">
-            Share room code <span className="font-mono font-bold text-brand-blue">{roomId}</span> with friends to join
+            {t.inviteHint(roomId)}
           </p>
         )}
       </main>

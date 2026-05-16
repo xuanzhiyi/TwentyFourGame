@@ -34,8 +34,8 @@ export default function NumberCard({ value, index }: Props) {
 
       {/* Center suit watermark + number */}
       <div className="flex flex-col items-center gap-1">
-        <span className={`text-4xl font-bold ${colorClass}`}>{display}</span>
-        <span className={`text-2xl opacity-20 ${colorClass}`}>{suit}</span>
+        <span className={`text-6xl font-bold ${colorClass}`}>{display}</span>
+        <span className={`text-3xl opacity-20 ${colorClass}`}>{suit}</span>
       </div>
 
       {/* Bottom-right pip (rotated) */}
