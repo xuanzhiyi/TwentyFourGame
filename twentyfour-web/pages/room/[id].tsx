@@ -128,6 +128,19 @@ export default function RoomPage() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
+      {/* Countdown overlay */}
+      {countdown !== null && (
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+          <span
+            key={countdown}
+            className="text-[20vw] font-black text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
+            style={{ animation: 'countdownPop 0.9s ease-out forwards' }}
+          >
+            {countdown}
+          </span>
+        </div>
+      )}
+
       <main className="min-h-screen flex flex-col items-center gap-3 p-4 pb-8">
         {/* Header */}
         <div className="w-full max-w-lg flex items-center justify-between">
@@ -166,7 +179,7 @@ export default function RoomPage() {
         {/* Number cards — 2×2 poker-card grid */}
         <div className="grid grid-cols-2 gap-3">
           {(roomState.numbers ?? [null, null, null, null]).map((n, i) => (
-            <NumberCard key={i} value={n} index={i} countdown={countdown} />
+            <NumberCard key={i} value={n} index={i} hidden={countdown !== null} />
           ))}
         </div>
 

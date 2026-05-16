@@ -9,8 +9,8 @@
 }
 
 @keyframes countdownPop {
-  0%   { transform: scale(1.8); opacity: 0; }
-  40%  { transform: scale(1.0); opacity: 1; }
-  80%  { transform: scale(1.0); opacity: 1; }
-  100% { transform: scale(0.8); opacity: 0; }
+  0%   { transform: scale(2.2); opacity: 0; }
+  20%  { transform: scale(1.0); opacity: 1; }
+  70%  { transform: scale(1.0); opacity: 1; }
+  100% { transform: scale(0.6); opacity: 0; }
 }
