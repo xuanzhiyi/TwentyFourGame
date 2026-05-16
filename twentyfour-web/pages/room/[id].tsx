@@ -60,8 +60,8 @@ export default function RoomPage() {
           JSON.stringify(newState.numbers) !== JSON.stringify(prev);
         prevNumbersRef.current = newState.numbers;
         setRoomState(newState);
-        if (!msg.buzzedById) setShowSolutions(false);
         if (isNewNumbers) {
+          setShowSolutions(false);
           setCountdown(2);
           setTimeout(() => setCountdown(1), 1000);
           setTimeout(() => setCountdown(null), 2000);
