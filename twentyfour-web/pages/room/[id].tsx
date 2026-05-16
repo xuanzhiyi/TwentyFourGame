@@ -111,7 +111,7 @@ export default function RoomPage() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <main className="min-h-screen flex flex-col items-center gap-6 p-4 md:p-8 pb-10">
+      <main className="min-h-screen flex flex-col items-center gap-3 p-4 pb-8">
         {/* Header */}
         <div className="w-full max-w-lg flex items-center justify-between">
           <button
@@ -136,10 +136,10 @@ export default function RoomPage() {
           myId={myId}
         />
 
-        {/* Number cards */}
-        <div className="flex gap-3 md:gap-5 my-2">
+        {/* Number cards — 2×2 poker-card grid */}
+        <div className="grid grid-cols-2 gap-3">
           {(roomState.numbers ?? [null, null, null, null]).map((n, i) => (
-            <NumberCard key={i} value={n} />
+            <NumberCard key={i} value={n} index={i} />
           ))}
         </div>
 
