@@ -215,14 +215,6 @@ export default function RoomPage() {
             </button>
           )}
 
-          {hasBuzzed && (
-            <button
-              onClick={() => send({ type: 'NEXT_ROUND' })}
-              className="px-6 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-gray-100 active:scale-95 transition-all"
-            >
-              {t.nextRound}
-            </button>
-          )}
         </div>
 
         {/* Solutions */}
