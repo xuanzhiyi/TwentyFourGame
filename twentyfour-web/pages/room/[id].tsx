@@ -182,18 +182,6 @@ export default function RoomPage() {
           ))}
         </div>
 
-        {/* Buzz banner */}
-        {hasBuzzed && (
-          <div className={`
-            w-full max-w-lg rounded-2xl py-4 px-6 text-center text-xl font-bold transition-all
-            ${iAmBuzzer
-              ? 'bg-yellow-400 text-yellow-900'
-              : 'bg-yellow-100 text-yellow-800 border border-yellow-300'}
-          `}>
-            {iAmBuzzer ? t.youBuzzed : t.buzzedFirst(roomState.buzzedByName ?? '')}
-          </div>
-        )}
-
         {/* Action buttons */}
         <div className="flex flex-wrap gap-3 justify-center">
           <button
@@ -208,14 +196,14 @@ export default function RoomPage() {
             disabled={!canBuzz}
             className={`
               px-8 py-3 rounded-xl font-bold text-lg transition-all duration-150
-              ${canBuzz
+              ${iAmBuzzer
+                ? 'bg-yellow-400 text-yellow-900 cursor-default shadow-lg'
+                : canBuzz
                 ? 'bg-red-500 hover:bg-red-600 active:scale-95 text-white shadow-lg cursor-pointer'
-                : iAmBuzzer
-                ? 'bg-red-500 text-white cursor-default'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-50'}
             `}
           >
-            {iAmBuzzer ? t.youBuzzedBtn : hasBuzzed ? t.buzzedBtn : t.buzzBtn}
+            {t.buzzBtn}
           </button>
 
           {canShowSolutions && (
