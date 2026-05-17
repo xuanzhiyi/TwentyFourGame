@@ -28,7 +28,20 @@ app.prepare().then(() => {
     }
   });
 
+  // Ping every 25 s so proxies (Railway, Nginx, Cloudflare) don't kill idle connections.
+  // Any client that misses two consecutive pings is considered dead and terminated.
+  const pingInterval = setInterval(() => {
+    wss.clients.forEach(ws => {
+      if (ws.isAlive === false) { handleDisconnect(ws); return ws.terminate(); }
+      ws.isAlive = false;
+      ws.ping();
+    });
+  }, 25_000);
+  wss.on('close', () => clearInterval(pingInterval));
+
   wss.on('connection', ws => {
+    ws.isAlive = true;
+    ws.on('pong', () => { ws.isAlive = true; });
     ws.on('message', data => handleMessage(ws, data.toString()));
     ws.on('close', () => handleDisconnect(ws));
     ws.on('error', () => ws.terminate());

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import NumberCard from '../../components/NumberCard';
@@ -22,6 +22,11 @@ export default function RoomPage() {
   const router = useRouter();
   const [t, toggleLang] = useLang();
   const wsRef = useRef<WebSocket | null>(null);
+  const unmountedRef = useRef(false);
+  const retryDelayRef = useRef(1000);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const roomIdRef = useRef('');
+  const playerNameRef = useRef('');
 
   const [myId, setMyId] = useState<string | null>(null);
   const [roomState, setRoomState] = useState<RoomState | null>(null);
@@ -31,22 +36,16 @@ export default function RoomPage() {
   const [cardPhase, setCardPhase] = useState<'hidden' | 'flipping' | 'idle'>('idle');
   const prevNumbersRef = useRef<number[] | null>(null);
 
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    const roomId = router.query.id as string;
-    const playerName =
-      (router.query.name as string) ||
-      (typeof window !== 'undefined' ? localStorage.getItem('playerName') : null) ||
-      'Anonymous';
-
+  const connect = useCallback(() => {
+    if (unmountedRef.current) return;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
     wsRef.current = ws;
 
     ws.onopen = () => {
+      retryDelayRef.current = 1000;
       setConnected(true);
-      ws.send(JSON.stringify({ type: 'JOIN', roomId, playerName }));
+      ws.send(JSON.stringify({ type: 'JOIN', roomId: roomIdRef.current, playerName: playerNameRef.current }));
     };
 
     ws.onmessage = e => {
@@ -78,12 +77,30 @@ export default function RoomPage() {
     ws.onclose = () => {
       setConnected(false);
       wsRef.current = null;
+      if (unmountedRef.current) return;
+      const delay = retryDelayRef.current;
+      retryDelayRef.current = Math.min(delay * 2, 16000);
+      retryTimerRef.current = setTimeout(connect, delay);
     };
 
     ws.onerror = () => ws.close();
+  }, []);
 
-    return () => ws.close();
-  }, [router.isReady, router.query.id, router.query.name]);
+  useEffect(() => {
+    if (!router.isReady) return;
+    roomIdRef.current = router.query.id as string;
+    playerNameRef.current =
+      (router.query.name as string) ||
+      localStorage.getItem('playerName') ||
+      'Anonymous';
+    unmountedRef.current = false;
+    connect();
+    return () => {
+      unmountedRef.current = true;
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+      wsRef.current?.close();
+    };
+  }, [router.isReady, router.query.id, router.query.name, connect]);
 
   const send = (payload: object) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -96,23 +113,7 @@ export default function RoomPage() {
     setShowSolutions(true);
   };
 
-  if (!connected) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-gray-400">
-          <p className="text-2xl font-semibold mb-2">{t.disconnected}</p>
-          <p className="text-sm mb-6">{t.lostConnection}</p>
-          <button
-            onClick={() => router.reload()}
-            className="bg-brand-blue text-white px-6 py-2 rounded-xl font-semibold hover:bg-blue-900 transition-colors"
-          >
-            {t.reconnect}
-          </button>
-        </div>
-      </main>
-    );
-  }
-
+  // First-time connect: show full-screen loader
   if (!roomState) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -171,6 +172,13 @@ export default function RoomPage() {
             </button>
           </div>
         </div>
+
+        {/* Reconnecting banner */}
+        {!connected && (
+          <div className="w-full max-w-lg bg-amber-50 border border-amber-200 text-amber-700 text-sm text-center rounded-xl py-2 px-4">
+            {t.reconnecting}
+          </div>
+        )}
 
         {/* Player list */}
         <PlayerList
