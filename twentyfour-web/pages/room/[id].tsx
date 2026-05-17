@@ -154,10 +154,9 @@ export default function RoomPage() {
             <h1 className="text-3xl font-bold text-brand-blue leading-none">{t.appTitle}</h1>
           </div>
           <div className="text-right flex flex-col items-end gap-1">
-            <div>
-              <p className="text-xs text-gray-400 uppercase tracking-widest">{t.roomLabel}</p>
-              <p className="font-mono font-bold text-brand-blue tracking-widest text-lg">{roomId}</p>
-            </div>
+            <p className="font-mono font-bold text-brand-blue tracking-widest text-sm">
+              {t.roomLabel} {roomId}
+            </p>
             <button
               onClick={toggleLang}
               className="text-xs font-semibold text-gray-400 hover:text-brand-blue border border-gray-200 rounded-lg px-2 py-0.5 transition-colors"
