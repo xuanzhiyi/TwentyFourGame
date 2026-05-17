@@ -133,7 +133,7 @@ export default function RoomPage() {
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
           <span
             key={countdown}
-            className="text-[20vw] font-black text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
+            className="text-[36vw] md:text-[20vw] font-black text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
             style={{ animation: 'countdownPop 0.9s ease-out forwards' }}
           >
             {countdown}
