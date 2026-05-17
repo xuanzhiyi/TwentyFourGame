@@ -153,7 +153,7 @@ export default function RoomPage() {
           <div className="text-center">
             <h1 className="text-3xl font-bold text-brand-blue leading-none">{t.appTitle}</h1>
           </div>
-          <div className="text-right flex flex-col items-end gap-1">
+          <div className="flex items-center gap-2">
             <p className="font-mono font-bold text-brand-blue tracking-widest text-sm">
               {t.roomLabel} {roomId}
             </p>
