@@ -28,6 +28,7 @@ export default function RoomPage() {
   const [connected, setConnected] = useState(false);
   const [showSolutions, setShowSolutions] = useState(false);
   const [countdown, setCountdown] = useState<2 | 1 | null>(null);
+  const [cardPhase, setCardPhase] = useState<'hidden' | 'flipping' | 'idle'>('idle');
   const prevNumbersRef = useRef<number[] | null>(null);
 
   useEffect(() => {
@@ -62,9 +63,14 @@ export default function RoomPage() {
         setRoomState(newState);
         if (isNewNumbers) {
           setShowSolutions(false);
+          setCardPhase('hidden');
           setCountdown(2);
           setTimeout(() => setCountdown(1), 1000);
-          setTimeout(() => setCountdown(null), 2000);
+          setTimeout(() => {
+            setCountdown(null);
+            setCardPhase('flipping');
+          }, 2000);
+          setTimeout(() => setCardPhase('idle'), 2600);
         }
       }
     };
@@ -118,8 +124,8 @@ export default function RoomPage() {
   const roomId = router.query.id as string;
   const hasBuzzed = roomState.buzzedById !== null;
   const iAmBuzzer = roomState.buzzedById === myId;
-  const canBuzz = roomState.numbers !== null && !hasBuzzed && countdown === null;
-  const canShowSolutions = roomState.numbers !== null && !showSolutions && countdown === null;
+  const canBuzz = roomState.numbers !== null && !hasBuzzed && cardPhase === 'idle';
+  const canShowSolutions = roomState.numbers !== null && !showSolutions && cardPhase === 'idle';
 
   return (
     <>
@@ -178,7 +184,7 @@ export default function RoomPage() {
         {/* Number cards — 2×2 poker-card grid */}
         <div className="grid grid-cols-2 gap-3">
           {(roomState.numbers ?? [null, null, null, null]).map((n, i) => (
-            <NumberCard key={i} value={n} index={i} hidden={countdown !== null} />
+            <NumberCard key={i} value={n} index={i} phase={cardPhase} />
           ))}
         </div>
 
